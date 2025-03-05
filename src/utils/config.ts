@@ -5,7 +5,6 @@ dotenv.config({
 });
 
 export const CONFIG = {
-   
    DB: process.env.DB_STRING,
    DBHost: process.env.DB_HOST,
    DBPort: process.env.DB_PORT,
