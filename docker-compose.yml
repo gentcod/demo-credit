@@ -1,0 +1,28 @@
+version: '3.4'
+
+services:
+  api:
+    restart: unless-stopped 
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    networks:
+      - demo-credit-network
+    environment:
+      NODE_ENV: development
+    env_file:
+      - ./.env
+  proxy:
+    restart: unless-stopped 
+    build: 
+      context: ./proxy
+      dockerfile: Dockerfile
+    ports:
+      - 8080:80
+    depends_on: 
+      - api
+    networks:
+    - demo-credit-network
+networks: 
+  demo-credit-network:
+    driver: bridge
