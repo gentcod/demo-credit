@@ -9,20 +9,20 @@ const scripts = new AuthScripts()
 
 export class AuthServies {
    public async createUser(authDto: IAuth) {
-      const email = authDto.email.toLowerCase();
-      const auth = await db.get(scripts.getUserByEmail, [email]);      
-      if (auth) {
-         return {
-            status: 400,
-            message: 'User account already exists.'
-         }
-      }
+      // const email = authDto.email.toLowerCase();
+      // const auth = await db.get(scripts.getUserByEmail, [email]);      
+      // if (auth) {
+      //    return {
+      //       status: 400,
+      //       message: 'User account already exists.'
+      //    }
+      // }
 
-      const hashedPassword = await hasher.hashPasswordHandler(authDto.password);
+      // const hashedPassword = await hasher.hashPasswordHandler(authDto.password);
 
-      await db.run(scripts.createUser, [
-         email, hashedPassword, new Date().toISOString()
-      ]);
+      // await db.run(scripts.createUser, [
+      //    email, hashedPassword, new Date().toISOString()
+      // ]);
 
       return {
          status: 200,
@@ -32,34 +32,34 @@ export class AuthServies {
 
    public async loginUser(authDto: IAuth) {
       const email = authDto.email.toLowerCase();
-      const auth = await db.get(scripts.getUserByEmail, [email]);
-      if (!auth) {
-         return {
-            status: 404,
-            message: 'User account does not exist.'
-         }
-      }
+      // const auth = await db.get(scripts.getUserByEmail, [email]);
+      // if (!auth) {
+      //    return {
+      //       status: 404,
+      //       message: 'User account does not exist.'
+      //    }
+      // }
 
-      const isValid = await hasher.comparePassword(authDto.password, auth.password);
-      if (!isValid) {
-         return {
-            status: 400,
-            message: 'Wrong password.'
-         }
-      }
+      // const isValid = await hasher.comparePassword(authDto.password, auth.password);
+      // if (!isValid) {
+      //    return {
+      //       status: 400,
+      //       message: 'Wrong password.'
+      //    }
+      // }
 
-      const payload = {
-         email: auth.email,
-      };
-      const token = signJwt(payload, CONFIG.JwtAuthExpiration);
+      // const payload = {
+      //    email: auth.email,
+      // };
+      // const token = signJwt(payload, CONFIG.JwtAuthExpiration);
 
       return {
          status: 200,
          message: 'User login successfully.',
-         data: {
-            token,
-            payload
-         }
+         // data: {
+         //    token,
+         //    payload
+         // }
       }
    }
 }

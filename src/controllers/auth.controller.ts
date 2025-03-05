@@ -25,7 +25,7 @@ export class AuthController {
          return sendApiResponse(res, {
             status: result.status,
             message: result.message,
-            data: result.data,
+            // data: result.data,
          });
       }
       catch (err) {

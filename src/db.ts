@@ -1,17 +1,24 @@
 import { DatabaseConnection } from "./internal/database";
-import { initializeDatabase } from "./internal/migrate";
 import { CONFIG } from "./utils/config";
 import logger from "./utils/logger";
 
 // =============================================
 // Database connections and events
 // =============================================
-const database = new DatabaseConnection(CONFIG.DB);
+const database = new DatabaseConnection({
+  client: 'mysql2',
+  dbstring: CONFIG.DB,
+  host: CONFIG.DBHost,
+  port: parseInt(CONFIG.DBPort),
+  user: CONFIG.DBUser,
+  password: CONFIG.DBPassword
+});
 
 // db connection events
 database.on('connected', async () => {
   try {
-    await initializeDatabase(database.getDatabase());
+    await database.migrate();    
+    logger.info('Database connection has been established successfully');
   } catch (e) {
     logger.debug('Failed to initialize database  ' + e);
   }

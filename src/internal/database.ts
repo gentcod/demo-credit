@@ -1,35 +1,53 @@
-import sqlite3 from 'sqlite3';
+import { Knex } from 'knex';
 import { EventEmitter } from 'events';
 import logger from '../utils/logger';
 
+type DBConfig = {
+   client: string;
+   dbstring: string;
+   host: string;
+   port: number;
+   user: string;
+   password: string;
+}
+
 export class DatabaseConnection extends EventEmitter {
-   private db: sqlite3.Database;
+   private db: Knex;
    private isConnected: boolean = false;
 
-   constructor(dbstring: string) {
+   constructor(dbConfig: DBConfig) {
       super();
-      this.connect(dbstring);
+      this.connect(dbConfig);
    }
 
    /**
-    * *connect* is used to establish connection to a SQLite database if the database exists
-    * and creates one based on the doptional atabase string, if it doesn't exist.
-    * To persist data, replace *':memory:'* with the *dbstring* parameter
-    * @param dbstring?
+    * *connect* is used to establish a connection to the database. 
+    * It entails logic to handle connection errors and success.
+    * It also used to declare migration setups.
+    * @param dbConfig
+    * @returns Promise<void>
     */
-   private connect(dbstring?: string): void {
-      try {
-         this.db = new sqlite3.Database(dbstring, (err) => {
-            if (err) {
-               logger.error('Database connection error:', err);
-               this.emit('error', err);
-            } else {
-               this.isConnected = true;
-               this.emit('connected');
-            }
+   private async connect(dbConfig: DBConfig): Promise<void> {
+      try {         
+         const knex = require('knex')({
+            client: dbConfig.client,
+            connection: {
+               host: dbConfig.host,
+               port: dbConfig.port,
+               user: dbConfig.user,
+               password: dbConfig.password,
+               database: dbConfig.dbstring,
+            },
+            migrations: {
+               directory: __dirname + "/migrations",
+               extension: "ts",
+            },
+            debug: process.env.NODE_ENV === 'development' ? true : false,
          });
-
-         this.db.configure('busyTimeout', 3000);
+         this.db = knex;
+         this.isConnected = true;
+         await this.db.initialize();
+         this.emit('connected');
       } catch (error) {
          this.emit('error', error);
       }
@@ -37,15 +55,31 @@ export class DatabaseConnection extends EventEmitter {
 
    /**
     * *getDatabase* simply returns the database object.
-    * @returns 
+    * @returns Knex
     */
-   public getDatabase(): sqlite3.Database {
+   public getDatabase(): Knex {
       return this.db;
    }
 
    /**
+    * *migrate* is used to run the latest migration on the database.
+    * @returns Promise<void>
+    */
+   public async migrate(): Promise<void> {
+      try {
+         logger.info('Starting database migration...');
+         const [batchNo, log] = await this.db.migrate.latest();
+         logger.info(`Batch ${batchNo} completed`);
+         logger.info('Migrations run:', log);
+      } catch (error) {
+         logger.error('Migration failed:', error);
+         this.emit('error', error);
+      }
+   }
+
+   /**
     * *close* is used to close a database connection.
-    * @returns 
+    * @returns Promise<void>
     */
    public async close(): Promise<void> {
       return new Promise((resolve, reject) => {
@@ -54,7 +88,7 @@ export class DatabaseConnection extends EventEmitter {
             return;
          }
 
-         this.db.close((err) => {
+         this.db.destroy((err: Error | undefined) => {
             if (err) {
                this.emit('error', err);
                reject(err);
@@ -64,51 +98,6 @@ export class DatabaseConnection extends EventEmitter {
                logger.info('Database connection closed');
                resolve();
             }
-         });
-      });
-   }
-
-   /**
-    * *run* is an helper method to run queries with promises.
-    * @param sql 
-    * @param params 
-    * @returns 
-    */
-   public async run(sql: string, params: any[] = []): Promise<any> {
-      return new Promise((resolve, reject) => {
-         this.db.run(sql, params, function (err) {
-            if (err) reject(err);
-            else resolve(this);
-         });
-      });
-   }
-
-   /**
-    * // *get* i an helper method to get a single row in the database.
-    * @param sql 
-    * @param params 
-    * @returns 
-    */
-   public async get(sql: string, params: any[] = []): Promise<any> {
-      return new Promise((resolve, reject) => {
-         this.db.get(sql, params, (err, row) => {
-            if (err) reject(err);
-            else resolve(row);
-         });
-      });
-   }
-
-   /**
-    * *getAll* is an helper method to get multiple rows in the database.
-    * @param sql 
-    * @param params 
-    * @returns 
-    */
-   public async getMultipe(sql: string, params: any[] = []): Promise<any[]> {
-      return new Promise((resolve, reject) => {
-         this.db.all(sql, params, (err, rows) => {
-            if (err) reject(err);
-            else resolve(rows);
          });
       });
    }
