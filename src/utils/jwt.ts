@@ -1,6 +1,7 @@
 import jwt, { GetPublicKeyOrSecret, Secret, SignOptions, JwtPayload } from "jsonwebtoken";
 import logger from "./logger";
 import { CONFIG } from '../utils/config';
+import ms from 'ms';
 
 export interface MyJwtPayload extends JwtPayload {
   email: string;
@@ -8,10 +9,10 @@ export interface MyJwtPayload extends JwtPayload {
 
 export const signJwt = (payload: Object, duration: string, options: SignOptions = {}) => {
   try {
+    options.expiresIn = duration as ms.StringValue;
     const privateKey = CONFIG.JWTPrivateKey;
     return jwt.sign(payload, String(privateKey), {
       ...options,
-      expiresIn: duration,
     });
   } catch (error) {
     logger.error(error);

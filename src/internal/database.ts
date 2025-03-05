@@ -1,6 +1,7 @@
 import { Knex } from 'knex';
 import { EventEmitter } from 'events';
 import logger from '../utils/logger';
+import { Querier } from './store';
 
 type DBConfig = {
    client: string;
@@ -12,12 +13,14 @@ type DBConfig = {
 }
 
 export class DatabaseConnection extends EventEmitter {
-   private db: Knex;
+   private _db: Knex;
    private isConnected: boolean = false;
+   public querier: Querier;
 
    constructor(dbConfig: DBConfig) {
       super();
       this.connect(dbConfig);
+      this.querier = new Querier(this._db);
    }
 
    /**
@@ -28,7 +31,7 @@ export class DatabaseConnection extends EventEmitter {
     * @returns Promise<void>
     */
    private async connect(dbConfig: DBConfig): Promise<void> {
-      try {         
+      try {
          const knex = require('knex')({
             client: dbConfig.client,
             connection: {
@@ -42,11 +45,11 @@ export class DatabaseConnection extends EventEmitter {
                directory: __dirname + "/migrations",
                extension: "ts",
             },
-            debug: process.env.NODE_ENV === 'development' ? true : false,
+            // debug: process.env.NODE_ENV === 'development' ? true : false, // Uncomment to enable debug
          });
-         this.db = knex;
+         this._db = knex;
          this.isConnected = true;
-         await this.db.initialize();
+         await this._db.initialize();
          this.emit('connected');
       } catch (error) {
          this.emit('error', error);
@@ -58,7 +61,7 @@ export class DatabaseConnection extends EventEmitter {
     * @returns Knex
     */
    public getDatabase(): Knex {
-      return this.db;
+      return this._db;
    }
 
    /**
@@ -68,7 +71,7 @@ export class DatabaseConnection extends EventEmitter {
    public async migrate(): Promise<void> {
       try {
          logger.info('Starting database migration...');
-         const [batchNo, log] = await this.db.migrate.latest();
+         const [batchNo, log] = await this._db.migrate.latest();
          logger.info(`Batch ${batchNo} completed`);
          logger.info('Migrations run:', log);
       } catch (error) {
@@ -88,7 +91,7 @@ export class DatabaseConnection extends EventEmitter {
             return;
          }
 
-         this.db.destroy((err: Error | undefined) => {
+         this._db.destroy((err: Error | undefined) => {
             if (err) {
                this.emit('error', err);
                reject(err);
@@ -100,5 +103,16 @@ export class DatabaseConnection extends EventEmitter {
             }
          });
       });
+   }
+}
+
+export const execTx = async (db: Knex, fn: (trx: Knex.Transaction) => Promise<void>): Promise<void> => {
+   const trx = await db.transaction();
+   try {
+     await fn(trx);
+     await trx.commit();
+   } catch (err) {
+     await trx.rollback();
+     throw new Error(`Transaction failed: ${err}`);
    }
 }

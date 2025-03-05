@@ -1,0 +1,28 @@
+import { Knex } from "knex";
+import { AccountQueries } from "./queries/account.queries";
+import { EntryQueries } from "./queries/entries.queries";
+import { TransferQueries } from "./queries/transfer.queries";
+import { AuthQueries } from "./queries/auth.queries";
+import { ProfileQueries } from "./queries/profile.queries";
+import { UserTx } from "./transactions/user.tx";
+
+export class Querier {
+   private _db: Knex
+   public user: AuthQueries;
+   public account: AccountQueries;
+   public transfer: TransferQueries;
+   public entry: EntryQueries;
+   public profile: ProfileQueries;
+   public userTx: UserTx
+
+   constructor(db: Knex) {
+      this._db = db;
+      this.user = new AuthQueries(db);
+      this.account = new AccountQueries(db);
+      this.transfer = new TransferQueries(db);
+      this.entry = new EntryQueries(db);
+      this.profile = new ProfileQueries(db);
+      this.userTx = new UserTx(db, this.user, this.profile);
+   }
+
+}
