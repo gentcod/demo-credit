@@ -12,6 +12,11 @@ type DBConfig = {
    password: string;
 }
 
+/**
+ * @author: Oyefule Oluwatayo @gentcod
+ * *DatabaseConnection* is a class that handles database connections.
+ * It is used to establish a connection to the database.
+ */
 export class DatabaseConnection extends EventEmitter {
    private _db: Knex;
    private isConnected: boolean = false;
@@ -104,6 +109,15 @@ export class DatabaseConnection extends EventEmitter {
    }
 }
 
+/**
+ * @author: Oyefule Oluwatayo @gentcod
+ * *execTx* is a utility function that handles database transactions. 
+ * It commits the transaction if successful.
+ * It is used to handle transaction errors and rollback the transaction if an error occurs.
+ * @param db: Knex - database instance
+ * @param fn: (trx: Knex.Transaction) => Promise<void> - function to execute transaction
+ * @returns Promise<void>
+ */
 export const execTx = async (db: Knex, fn: (trx: Knex.Transaction) => Promise<void>): Promise<void> => {
    const trx = await db.transaction();
    try {

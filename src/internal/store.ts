@@ -5,6 +5,7 @@ import { TransferQueries } from "./queries/transfer.queries";
 import { AuthQueries } from "./queries/auth.queries";
 import { ProfileQueries } from "./queries/profile.queries";
 import { UserTx } from "./transactions/user.tx";
+import { TransferTx } from "./transactions/transfer.tx";
 
 export class Querier {
    private _db: Knex
@@ -14,6 +15,7 @@ export class Querier {
    public entry: EntryQueries;
    public profile: ProfileQueries;
    public userTx: UserTx
+   public transferTx: TransferTx
 
    constructor(db: Knex) {
       this._db = db;
@@ -23,6 +25,14 @@ export class Querier {
       this.entry = new EntryQueries(db);
       this.profile = new ProfileQueries(db);
       this.userTx = new UserTx(db, this.user, this.profile);
+      this.transferTx = new TransferTx(db, this.transfer, this.account, this.entry);
    }
+}
 
+export const entities = {
+   auth: 'auths',
+   account: 'accounts',
+   transfer: 'transfers',
+   entry: 'entries',
+   profile: 'profiles'
 }
