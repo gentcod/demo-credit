@@ -1,3 +1,5 @@
+const path = require('path');
+
 module.exports = {
    client: 'mysql2',
    connection: {
@@ -8,7 +10,6 @@ module.exports = {
       database: process.env.DB_STRING,
    },
    migrations: {
-      directory: __dirname + "/src/internal/migrations",
-      extension: "ts",
+      directory: "./src/internal/migrations",
    },
 };

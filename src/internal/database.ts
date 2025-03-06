@@ -2,6 +2,7 @@ import { Knex } from 'knex';
 import { EventEmitter } from 'events';
 import logger from '../utils/logger';
 import { Querier } from './store';
+import path from 'path';
 
 type DBConfig = {
    client: string;
@@ -42,8 +43,7 @@ export class DatabaseConnection extends EventEmitter {
                database: dbConfig.dbstring,
             },
             migrations: {
-               directory: __dirname + "/migrations",
-               extension: "ts",
+               directory: "./src/internal/migrations",
             },
             // debug: process.env.NODE_ENV === 'development' ? true : false, // Uncomment to enable debug
          });
@@ -76,7 +76,6 @@ export class DatabaseConnection extends EventEmitter {
          logger.info('Migrations run:', log);
       } catch (error) {
          logger.error('Migration failed:', error);
-         this.emit('error', error);
       }
    }
 
