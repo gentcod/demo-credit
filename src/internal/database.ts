@@ -2,7 +2,6 @@ import { Knex } from 'knex';
 import { EventEmitter } from 'events';
 import logger from '../utils/logger';
 import { Querier } from './store';
-import path from 'path';
 
 type DBConfig = {
    client: string;
