@@ -1,13 +1,11 @@
-import { CONFIG } from "./utils/config";
-
 export default {
    client: 'mysql2',
    connection: {
-      host: CONFIG.DBHost,
-      port: parseInt(CONFIG.DBPort),
-      user: CONFIG.DBUser,
-      password: CONFIG.DBPassword,
-      database: CONFIG.DB,
+      host: process.env.DBHost,
+      port: parseInt(process.env.DBPort),
+      user: process.env.DBUser,
+      password: process.env.DBPassword,
+      database: process.env.DB,
    },
    migrations: {
       directory: __dirname + "/src/internal/migrations",

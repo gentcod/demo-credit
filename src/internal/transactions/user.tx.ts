@@ -2,8 +2,8 @@ import { Knex } from 'knex';
 import { execTx } from '../database';
 import { AuthQueries } from '../queries/auth.queries';
 import { ProfileQueries } from '../queries/profile.queries';
-import { IProfile } from '../../models/Profile';
-import { IAuth } from '../../models/Auth';
+import { IProfile } from '../models/Profile';
+import { IAuth } from '../models/Auth';
 
 export class UserTx {
    private _db: Knex
@@ -20,7 +20,7 @@ export class UserTx {
       try {
          await execTx(this._db, async (trx) => {
             await this._auth.createAuth(auth, trx);
-            const authRes = await this._auth.getAuthId();            
+            const authRes = await this._auth.getAuthId();
             profile.user_id = authRes[0].id;
             await this._profile.createProfile(profile, trx);
          });

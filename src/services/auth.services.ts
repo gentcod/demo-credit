@@ -1,5 +1,5 @@
 import { db } from "../db";
-import { IAuth } from "../models/Auth";
+import { IAuth } from "../internal/models/Auth";
 import { hasher } from "../utils/bcrypt";
 import { CONFIG } from "../utils/config";
 import { signJwt } from "../utils/jwt";
@@ -7,10 +7,10 @@ import { UserDto } from "../dtos/user.dto";
 
 export class AuthServies {
    public async createUser(userDto: UserDto) {
-      const {email, password, ...data} = userDto
+      const { email, password, ...data } = userDto
       const mail = email.toLowerCase();
       const auth = await db.querier.user.getAuthByEmail(mail);
-        
+
       if (auth[0]) {
          return {
             status: 400,
@@ -20,8 +20,8 @@ export class AuthServies {
 
       const hashedPassword = await hasher.hashPasswordHandler(password);
       await db.querier.userTx.createUser(
-         {email, password: hashedPassword},
-         {user_id: null, ...data}
+         { email, password: hashedPassword },
+         { user_id: null, ...data }
       );
 
       return {
