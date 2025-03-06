@@ -1,12 +1,12 @@
 import { Knex } from 'knex';
-import { Entities } from '../store';
+import { Entities } from '../database';
 import { IAccount } from '../models/Account';
 
 // const entity = entities.ACCOUNT;
 
 // console.log(entity);
 
-type AccountUpdate = Pick<IAccount, 'balance'>;
+type AccountCreate = Pick<IAccount, 'account_no' & 'currency' & 'user_id'>;
 
 export class AccountQueries {
    private _db: Knex
@@ -14,13 +14,17 @@ export class AccountQueries {
    constructor(db: Knex) {
       this._db = db;
    }
-   public async createAccount(account: IAccount, trx?: Knex.Transaction): Promise<any> {
+   public async createAccount(data: AccountCreate, trx?: Knex.Transaction): Promise<any> {
       const db = trx || this._db;
-      return db.insert(account).into<IAccount>('accounts');
+      return db.insert(data).into<IAccount>('accounts').returning('*');
    }
 
-   public async getAccount(accountId: string): Promise<any> {
-      return this._db.select('*').from<IAccount>('accounts').where('id', accountId)
+   public async getAccount(userId: string, currency: string): Promise<any> {
+      return this._db.select('*').from<IAccount>('accounts').where('user_id', userId).andWhere('currency', currency)
+   }
+
+   public async getAccountByAccNo(account_no: string, currency: string): Promise<any> {
+      return this._db.select('*').from<IAccount>('accounts').where('account_no', account_no).andWhere('currency', currency)
    }
 
    public async getAccounts(userId: string, limit?: number, offset?: number): Promise<any> {
@@ -32,8 +36,11 @@ export class AccountQueries {
       return db.select('*').from<IAccount>('accounts').where('id', accountId).forUpdate();
    }
 
-   public async updateAccount(data: AccountUpdate, userId: string, trx?: Knex.Transaction): Promise<any> {
+   public async fundAccount(balance: number, userId: string, currency: string, trx?: Knex.Transaction): Promise<any> {
       const db = trx || this._db;
-      return db.update(data).from<IAccount>('accounts').where('user_id', userId);
+      return db('accounts').update({
+         balance: balance,
+         updated_at: this._db.fn.now(),
+      }).where('user_id', userId).andWhere('currency', currency);
    }
 };

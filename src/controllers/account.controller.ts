@@ -1,15 +1,16 @@
 import { Request, Response, NextFunction } from 'express';
 import { sendApiResponse, sendInternalErrorResponse} from '../utils/apiResponse';
-import { AuthServies } from '../services/auth.services';
+import { AccountServies } from '../services/account.services';
 
-export class AuthController {
-   public async createUser(req: Request, res: Response, next: NextFunction) {
+export class AccountController {
+   public async createAccount(req: Request, res: Response, next: NextFunction) {
       try {
-         const result = await new AuthServies().createUser(req.body)
+         const result = await new AccountServies().createAccount({email: req.email, ...req.body})
          
          return sendApiResponse(res, {
             status: result.status,
             message: result.message,
+            data: result.data,
          });
       }
       catch (err) {
@@ -18,9 +19,9 @@ export class AuthController {
       }
    };
 
-   public async loginUser(req: Request, res: Response, next: NextFunction) {
+   public async fundAccount(req: Request, res: Response, next: NextFunction) {
       try {
-         const result = await new AuthServies().loginUser(req.body)
+         const result = await new AccountServies().fundAccount({user_id: req.user_id, ...req.body})
          
          return sendApiResponse(res, {
             status: result.status,

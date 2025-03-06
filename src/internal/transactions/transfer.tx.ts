@@ -11,10 +11,11 @@ type TransferTxParams = {
 }
 
 type AccountTXParam = {
-   account1Id: string,
-   amount1: number,
-   account2Id: string,
-   amount2: number
+   account1Id: string;
+   amount1: number;
+   account2Id: string;
+   amount2: number;
+   currency: string;
 }
 
 type AccountTXResult = {
@@ -40,65 +41,63 @@ export class TransferTx {
       this._entries = entries;
    }
 
-   public async transfer(params: TransferTxParams) {
+   public async transfer(transfer: ITransfer, currency: string): Promise<any> {
       try {
+         let result;
          await execTx(this._db, async (trx) => {
-            await this._transfer.createTransfer(params.transfer, trx);
+            await this._transfer.createTransfer(transfer, trx);
 
             await this._entries.createEntry(
                {
-                  account_id: params.transfer.sender_id,
-                  amount: -params.transfer.amount,
+                  account_id: transfer.sender_id,
+                  amount: -transfer.amount,
                },
                trx
             )
 
             await this._entries.createEntry(
                {
-                  account_id: params.transfer.recipient_id,
-                  amount: params.transfer.amount,
+                  account_id: transfer.recipient_id,
+                  amount: transfer.amount,
                },
                trx
             )
 
             // update accounts
-            await this._addMoney(
+            result = await this._addMoney(
                {
-                  account1Id: params.transfer.sender_id,
-                  amount1: -params.transfer.amount,
-                  account2Id: params.transfer.recipient_id,
-                  amount2: params.transfer.amount
+                  account1Id: transfer.sender_id,
+                  amount1: -transfer.amount,
+                  account2Id: transfer.recipient_id,
+                  amount2: transfer.amount,
+                  currency,
                },
                trx
             )
          })
+         return result;
       } catch (err) {
          throw err;
       }
    }
 
-   private async _addMoney(param: AccountTXParam, trx: Knex.Transaction): Promise<AccountTXResult> {
+   private async _addMoney(param: AccountTXParam, trx: Knex.Transaction): Promise<void> {
       try {
          const senderRes = await this._account.getAccountForUpdate(param.account1Id, trx);
-         await this._account.updateAccount(
-            {
-               balance: senderRes[0].balance - param.amount1,
-            },
+         await this._account.fundAccount(
+            senderRes[0].balance - param.amount1,
             senderRes[0].id,
+            param.currency,
             trx
          )
-         const account1 = await this._account.getAccount(param.account1Id);
 
          const recipientRes = await this._account.getAccountForUpdate(param.account1Id, trx);
-         await this._account.updateAccount(
-            {
-               balance: recipientRes[0].balance + param.amount1,
-            },
+         await this._account.fundAccount(
+            recipientRes[0].balance + param.amount1,
             recipientRes[0].id,
+            param.currency,
             trx
          )
-         const account2 = await this._account.getAccountForUpdate(param.account2Id);
-         return { account1: account1[0], account2: account2 }
       } catch (error) {
          throw error;
       }

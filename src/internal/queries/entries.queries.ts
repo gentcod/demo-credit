@@ -1,5 +1,5 @@
 import { Knex } from 'knex';
-import { Entities } from '../store';
+import { Entities } from '../database';
 import { IEntry } from '../models/Entry';
 
 // const entity = Entities.ENTRY;

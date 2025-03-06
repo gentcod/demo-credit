@@ -1,6 +1,6 @@
 import { Knex } from 'knex';
 import { ITransfer } from '../models/Transfer';
-import { Entities } from '../store';
+import { Entities } from '../database';
 
 // const entity = Entities.TRANSFER;
 
