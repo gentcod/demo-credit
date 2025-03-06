@@ -1,11 +1,12 @@
 import { Knex } from 'knex';
 
 export async function up(knex: Knex): Promise<void> {
-   return knex.schema.createTable("profiles", (table) => {
+   return knex.schema.createTable("accounts", (table) => {
       table.uuid("id").primary().defaultTo(knex.raw('(UUID())'));
       table.uuid("user_id").references('auths');
-      table.string("first_name").notNullable();
-      table.string("last_name").notNullable();
+      table.bigint("balance").notNullable().defaultTo(0.00);
+      table.string("account_no", 10).notNullable().unique();
+      table.string("currency").notNullable();
       table.timestamps(true, true);
    });
 }

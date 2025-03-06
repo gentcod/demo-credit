@@ -13,5 +13,4 @@ export const CONFIG = {
    PORT: process.env.PORT || 5050,
    JWTPrivateKey: process.env.JWTPRIVATEKEY,
    JwtAuthExpiration: process.env.JWTXPIRATION,
-   BOUND: process.env.SENTIMENT_BOUND,
 }

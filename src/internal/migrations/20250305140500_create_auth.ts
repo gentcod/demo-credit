@@ -1,5 +1,4 @@
 import { Knex } from 'knex';
-import { v4 as uuidv4 } from "uuid";
 
 export async function up(knex: Knex): Promise<void> {
    return knex.schema.createTable("auths", (table) => {
