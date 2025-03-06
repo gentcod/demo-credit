@@ -29,10 +29,10 @@ export class Querier {
    }
 }
 
-export const entities = {
-   auth: 'auths',
-   account: 'accounts',
-   transfer: 'transfers',
-   entry: 'entries',
-   profile: 'profiles'
+export enum Entities {
+   AUTH = 'auths',
+   ACCOUNT = 'accounts',
+   TRANSFER = 'transfers',
+   ENTRY = 'entries',
+   PROFILE = 'profiles'
 }

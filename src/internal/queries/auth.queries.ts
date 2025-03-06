@@ -1,9 +1,9 @@
 import { Knex } from 'knex';
 import { IAuth } from '../models/Auth';
-import { entities } from '../store';
+import { Entities } from '../store';
 
+// const entity = Entities.AUTH;
 type AuthUpdate = Pick<IAuth, 'email' | 'password'>;
-const entity = entities.auth;
 
 export class AuthQueries {
    private _db: Knex
@@ -13,22 +13,22 @@ export class AuthQueries {
    }
    public async createAuth(auth: IAuth, trx?: Knex.Transaction): Promise<any> {
       const db = trx || this._db;
-      return db.insert(auth).into<IAuth>(entity);
+      return db.insert(auth).into<IAuth>('auths');
    }
 
    public async updateAuth(data: AuthUpdate, user_id: string): Promise<any> {
-      return this._db.update(data).from<IAuth>(entity).where('id', user_id);
+      return this._db.update(data).from<IAuth>('auths').where('id', user_id);
    }
 
    public async getAuthByEmail(email: string): Promise<any> {
-      return this._db.select('id', 'email').from<IAuth>(entity).where('email', email);
+      return this._db.select('id', 'email').from<IAuth>('auths').where('email', email);
    }
 
    public async getAuthById(user_id: string): Promise<any> {
-      return this._db.select('*').from<IAuth>(entity).where('id', user_id);
+      return this._db.select('*').from<IAuth>('auths').where('id', user_id);
    }
 
    public async getAuthId(): Promise<any> {
-      return this._db.select('id').from<IAuth>(entity);
+      return this._db.select('id').from<IAuth>('auths');
    }
 };

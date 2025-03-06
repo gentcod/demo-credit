@@ -1,8 +1,8 @@
 import { Knex } from 'knex';
 import { ITransfer } from '../models/Transfer';
-import { entities } from '../store';
+import { Entities } from '../store';
 
-const entity = entities.transfer;
+// const entity = Entities.TRANSFER;
 
 export class TransferQueries {
    private _db: Knex
@@ -12,14 +12,14 @@ export class TransferQueries {
    }
    public async createTransfer(transfer: ITransfer, trx?: Knex.Transaction): Promise<any> {
       const db = trx || this._db;
-      return db.insert(transfer).into<ITransfer>(entity);
+      return db.insert(transfer).into<ITransfer>('transfers');
    }
 
    public async getTransfer(transferId: string): Promise<any> {
-      return this._db.select('*').from<ITransfer>(entity).where('id', transferId)
+      return this._db.select('*').from<ITransfer>('transfers').where('id', transferId)
    }
 
    public async getTransfers(limit?: number, offset?: number): Promise<any> {
-      return this._db.select('*').from<ITransfer>(entity).limit(limit).offset(offset);
+      return this._db.select('*').from<ITransfer>('transfers').limit(limit).offset(offset);
    }
 };
