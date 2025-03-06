@@ -18,7 +18,9 @@
     "dev-install": "npm install",
     "prod-install": "npm install --only=production",
     "remove-updates": "rm -Rf node_modules",
-    "debug": "npm run build && ndb node dist/server.js"
+    "debug": "npm run build && ndb node dist/server.js",
+    "migrate": "knex migrate:latest",
+    "migrate-rollback": "knex migrate:rollback"
   },
   "keywords": [
     "API"

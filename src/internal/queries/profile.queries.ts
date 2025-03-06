@@ -1,5 +1,5 @@
 import { Knex } from 'knex';
-import { IProfile } from '../../models/Profile';
+import { IProfile } from '../models/Profile';
 
 type ProfileUpdate = Pick<IProfile, 'first_name' | 'last_name'>;
 

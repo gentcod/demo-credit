@@ -1,11 +1,11 @@
 import { Knex } from 'knex';
-import { IAuth } from '../../models/Auth';
+import { IAuth } from '../models/Auth';
 
 type AuthUpdate = Pick<IAuth, 'email' | 'password'>;
 
 export class AuthQueries {
    private _db: Knex
-   
+
    constructor(db: Knex) {
       this._db = db;
    }
@@ -15,7 +15,7 @@ export class AuthQueries {
    }
 
    public async updateAuth(data: AuthUpdate, user_id: string): Promise<any> {
-      return this._db.update(data).from<IAuth>('auths').where('id', user_id);   
+      return this._db.update(data).from<IAuth>('auths').where('id', user_id);
    }
 
    public async getAuthByEmail(email: string): Promise<any> {

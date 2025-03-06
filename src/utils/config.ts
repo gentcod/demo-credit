@@ -5,7 +5,7 @@ dotenv.config({
 });
 
 export const CONFIG = {
-   DB: process.env.DB_STRING,
+   DB: process.env.DB_NAME,
    DBHost: process.env.DB_HOST,
    DBPort: process.env.DB_PORT,
    DBUser: process.env.DB_USER,
@@ -13,5 +13,4 @@ export const CONFIG = {
    PORT: process.env.PORT || 5050,
    JWTPrivateKey: process.env.JWTPRIVATEKEY,
    JwtAuthExpiration: process.env.JWTXPIRATION,
-   BOUND: process.env.SENTIMENT_BOUND,
 }
