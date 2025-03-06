@@ -1,6 +1,8 @@
 import { Knex } from 'knex';
 import { IAuth } from '../models/Auth';
+import { Entities } from '../store';
 
+// const entity = Entities.AUTH;
 type AuthUpdate = Pick<IAuth, 'email' | 'password'>;
 
 export class AuthQueries {

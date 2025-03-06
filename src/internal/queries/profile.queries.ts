@@ -1,6 +1,8 @@
 import { Knex } from 'knex';
 import { IProfile } from '../models/Profile';
+import { Entities } from '../store';
 
+// const entity = Entities.PROFILE;
 type ProfileUpdate = Pick<IProfile, 'first_name' | 'last_name'>;
 
 export class ProfileQueries {
