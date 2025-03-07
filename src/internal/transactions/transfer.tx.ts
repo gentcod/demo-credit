@@ -1,14 +1,11 @@
 import { Knex } from 'knex';
+import { getTimestampFromUUID } from '../../utils/transaction';
 import { execTx } from '../database';
-import { IAccount } from '../models/Account';
+import { Account } from '../models/Account';
 import { ITransfer } from '../models/Transfer';
 import { AccountQueries } from '../queries/account.queries';
 import { EntryQueries } from '../queries/entries.queries';
 import { TransferQueries } from '../queries/transfer.queries';
-
-type TransferTxParams = {
-   transfer: ITransfer;
-}
 
 type AccountTXParam = {
    account1Id: string;
@@ -16,11 +13,6 @@ type AccountTXParam = {
    account2Id: string;
    amount2: number;
    currency: string;
-}
-
-type AccountTXResult = {
-   account1: IAccount;
-   account2: IAccount;
 }
 
 export class TransferTx {
@@ -41,11 +33,40 @@ export class TransferTx {
       this._entries = entries;
    }
 
-   public async transfer(transfer: ITransfer, currency: string): Promise<any> {
+   public async transfer(transfer: ITransfer, currency: string): Promise<Account> {
       try {
          let result;
          await execTx(this._db, async (trx) => {
+            console.log(transfer);
+            
             await this._transfer.createTransfer(transfer, trx);
+
+            const senderUnixTime = getTimestampFromUUID(transfer.sender_id);
+            const recipientUnixTime = getTimestampFromUUID(transfer.recipient_id);
+
+            if (senderUnixTime < recipientUnixTime ){
+               result = await this._updateAccounts(
+                  {
+                     account1Id: transfer.sender_id,
+                     amount1: -transfer.amount,
+                     account2Id: transfer.recipient_id,
+                     amount2: transfer.amount,
+                     currency,
+                  },
+                  trx
+               )
+            } else {
+               result = await this._updateAccounts(
+                  {
+                     account1Id: transfer.recipient_id,
+                     amount1: transfer.amount,
+                     account2Id: transfer.sender_id,
+                     amount2: -transfer.amount,
+                     currency,
+                  },
+                  trx
+               )
+            }
 
             await this._entries.createEntry(
                {
@@ -63,17 +84,6 @@ export class TransferTx {
                trx
             )
 
-            // update accounts
-            result = await this._addMoney(
-               {
-                  account1Id: transfer.sender_id,
-                  amount1: -transfer.amount,
-                  account2Id: transfer.recipient_id,
-                  amount2: transfer.amount,
-                  currency,
-               },
-               trx
-            )
          })
          return result;
       } catch (err) {
@@ -81,23 +91,28 @@ export class TransferTx {
       }
    }
 
-   private async _addMoney(param: AccountTXParam, trx: Knex.Transaction): Promise<void> {
+   private async _updateAccounts(param: AccountTXParam, trx: Knex.Transaction): Promise<Account> {
       try {
-         const senderRes = await this._account.getAccountForUpdate(param.account1Id, trx);
+         console.log(param);
+         
+         const account1 = await this._account.getAccountForUpdate(param.account1Id, trx);
          await this._account.fundAccount(
-            senderRes[0].balance - param.amount1,
-            senderRes[0].id,
+            (account1[0].balance + param.amount1),
+            account1[0].id,
             param.currency,
             trx
          )
 
-         const recipientRes = await this._account.getAccountForUpdate(param.account1Id, trx);
+         const account2 = await this._account.getAccountForUpdate(param.account2Id, trx);         
          await this._account.fundAccount(
-            recipientRes[0].balance + param.amount1,
-            recipientRes[0].id,
+            account2[0].balance + param.amount2,
+            account2[0].id,
             param.currency,
             trx
          )
+         console.log(account1, account2);
+         const res = param.amount1 < param.amount2 ? account1[0] : account2[0];
+         return res;
       } catch (error) {
          throw error;
       }
