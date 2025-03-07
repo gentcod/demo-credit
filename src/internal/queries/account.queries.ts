@@ -1,6 +1,6 @@
 import { Knex } from 'knex';
 import { Entities } from '../database';
-import { IAccount } from '../models/Account';
+import { Account, IAccount } from '../models/Account';
 
 // const entity = entities.ACCOUNT;
 
@@ -16,29 +16,29 @@ export class AccountQueries {
    }
    public async createAccount(data: AccountCreate, trx?: Knex.Transaction): Promise<any> {
       const db = trx || this._db;
-      return db.insert(data).into<IAccount>('accounts').returning('*');
+      return db.insert(data).into<Account>('accounts').returning('*');
    }
 
-   public async getAccount(userId: string, currency: string): Promise<any> {
-      return this._db.select('*').from<IAccount>('accounts').where('user_id', userId).andWhere('currency', currency)
+   public async getAccount(userId: string, currency: string): Promise<Account[]> {
+      return this._db.select('*').from<Account>('accounts').where('user_id', userId).andWhere('currency', currency)
    }
 
-   public async getAccountByAccNo(account_no: string, currency: string): Promise<any> {
-      return this._db.select('*').from<IAccount>('accounts').where('account_no', account_no).andWhere('currency', currency)
+   public async getAccountByAccNo(account_no: string, currency: string): Promise<Account[]> {
+      return this._db.select('*').from<Account>('accounts').where('account_no', account_no).andWhere('currency', currency)
    }
 
-   public async getAccounts(userId: string, limit?: number, offset?: number): Promise<any> {
-      return this._db.select('*').from<IAccount>('accounts').where('user_id', userId).limit(limit).offset(offset);
+   public async getAccounts(userId: string, limit?: number, offset?: number): Promise<Account[]> {
+      return this._db.select('*').from<Account>('accounts').where('user_id', userId).limit(limit).offset(offset);
    }
 
    public async getAccountForUpdate(accountId: string, trx?: Knex.Transaction): Promise<any> {
       const db = trx || this._db;
-      return db.select('*').from<IAccount>('accounts').where('id', accountId).forUpdate();
+      return db.select('*').from<Account>('accounts').where('id', accountId).forUpdate();
    }
 
    public async fundAccount(balance: number, userId: string, currency: string, trx?: Knex.Transaction): Promise<any> {
       const db = trx || this._db;
-      return db('accounts').update({
+      return db<Account>('accounts').update({
          balance: balance,
          updated_at: this._db.fn.now(),
       }).where('user_id', userId).andWhere('currency', currency);

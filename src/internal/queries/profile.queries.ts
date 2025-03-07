@@ -1,5 +1,5 @@
 import { Knex } from 'knex';
-import { IProfile } from '../models/Profile';
+import { IProfile, Profile } from '../models/Profile';
 import { Entities } from '../database';
 
 // const entity = Entities.PROFILE;
@@ -13,14 +13,14 @@ export class ProfileQueries {
    }
    public async createProfile(profile: IProfile, trx?: Knex.Transaction): Promise<any> {
       const db = trx || this._db;
-      return db.insert(profile).into<IProfile>('profiles');
+      return db.insert(profile).into<Profile>('profiles');
    }
 
    public async updateProfile(data: ProfileUpdate, user_id: string): Promise<any> {
-      return this._db('profiles').update({ ...data, updated_at: this._db.fn.now() }).where('user_id', user_id);
+      return this._db<Profile>('profiles').update({ ...data, updated_at: this._db.fn.now() }).where('user_id', user_id);
    }
 
-   public async getProfile(user_id: string): Promise<any> {
-      return this._db.select('*').from<IProfile>('profiles').where('user_id', user_id);
+   public async getProfile(user_id: string): Promise<Profile[]> {
+      return this._db.select('*').from<Profile>('profiles').where('user_id', user_id);
    }
 };
