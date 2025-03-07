@@ -1,5 +1,6 @@
 export interface IEntry {
    account_id: string;
+   description: string;
    amount: number;
 }
 
