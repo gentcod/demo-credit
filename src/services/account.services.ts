@@ -102,4 +102,32 @@ export class AccountServies {
          }
       }
    }
+
+   public async getAccount(user_id: string, currency: string): Promise<ApiResponse<any>> {
+      const auth = await db.querier.user.getAuthById(user_id);
+      if (!auth[0]) {
+         return {
+            status: 403,
+            message: 'Account cannot be fetched by unauthorized user.'
+         }
+      }
+
+      const account = await db.querier.account.getAccount(auth[0].id, currency);
+      if (!account[0]) {
+         return {
+            status: 404,
+            message: `Account with ${currency} currency does not exist.`
+         }
+      }
+
+      const resp = AccountResponse.createResponse(account[0])
+      
+      return {
+         status: 200,
+         message: 'Account has been fetched successfully.',
+         data: {
+            account: resp,
+         }
+      }
+   }
 }

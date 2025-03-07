@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { validateRequest } from '../../middlewares/validateReqMiddleware';
 import { AccountController } from '../../controllers/account.controller';
-import { CreateAccountValidation, FundAccountValidation } from '../../validations/account.validation';
+import { CreateAccountValidation, FundAccountValidation, GetAccountValidation } from '../../validations/account.validation';
 import { authMid } from '../../middlewares/authMiddleware';
 
 export class AccountRoute {
@@ -40,6 +40,12 @@ export class AccountRoute {
       this.router.route('/').get(
          authMid,
          this._accountController.getAccounts,
+      );
+
+      this.router.route('/:currency').get(
+         validateRequest(GetAccountValidation, 'params'),
+         authMid,
+         this._accountController.getAccount,
       );
    }
 
