@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import { TransferController } from '../controllers/transfer.controller';
-import { authMid } from '../middlewares/authMiddleware';
-import { validateRequest } from '../middlewares/validateReqMiddleware';
-import { SendFundValidation } from '../validations/transfer.validation';
+import { TransferController } from '../../controllers/transfer.controller';
+import { authMid } from '../../middlewares/authMiddleware';
+import { validateRequest } from '../../middlewares/validateReqMiddleware';
+import { SendFundValidation } from '../../validations/transfer.validation';
 
 export class TransferRoute {
    public router_: Router

@@ -6,17 +6,25 @@ import { CONFIG } from "../utils/config";
 import { signJwt } from "../utils/jwt";
 import { UserDto } from "../dtos/user.dto";
 import { ApiResponse } from "../utils/apiResponse";
+import { LendsqrAdjutor } from './third-party/adjutor.services';
 
 export class AuthServies {
    public async createUser(userDto: UserDto): Promise<ApiResponse<any>> {
       const { email, password, ...data } = userDto
       const mail = email.toLowerCase();
       const auth = await db.querier.user.getAuthByEmail(mail);
-
       if (auth[0]) {
          return {
             status: 400,
             message: 'User account already exists.'
+         }
+      }
+
+      const adjutorResp = await new LendsqrAdjutor().checkKarama(email)
+      if (adjutorResp.isError) {
+         return {
+            status: adjutorResp.data.status,
+            message: `Signup failed as you have been blacklisted. ${adjutorResp.data.message}`,
          }
       }
 

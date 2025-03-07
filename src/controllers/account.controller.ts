@@ -66,4 +66,21 @@ export class AccountController {
          next(err);
       }
    };
+
+   public async getAccount(req: Request, res: Response, next: NextFunction) {
+      try {
+         const currency = req.params.currency as string;         
+         const result = await new AccountServies().getAccount(req.user_id, currency)
+         
+         return sendApiResponse(res, {
+            status: result.status,
+            message: result.message,
+            data: result.data,
+         });
+      }
+      catch (err) {
+         sendInternalErrorResponse(res, err);
+         next(err);
+      }
+   };     
 }

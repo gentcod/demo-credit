@@ -13,4 +13,7 @@ export const CONFIG = {
    PORT: process.env.PORT || 5050,
    JWTPrivateKey: process.env.JWTPRIVATEKEY,
    JwtAuthExpiration: process.env.JWTXPIRATION,
+   Currencies: ['USD', 'EUR', 'GBP', 'NGN'],
+   AdjutorBaseUrl: process.env.LENDSQR_ADJUTOR_BASE_URL,
+   AdjutorApiKey: process.env.LENDSQR_ADJUTOR_API_KEY,
 }
