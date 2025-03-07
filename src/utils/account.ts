@@ -2,7 +2,7 @@
  * Generates a unique 10-digit account number
  * Format: 5XXXXXXXXX (starts with 5, followed by 9 random digits)
  */
-export class AccountNumberGenerator {
+export class WalletIDGenerator {
    public generate(): string {
       const min = 5000000000;
       const max = 5999999999;

@@ -30,6 +30,17 @@ export class AccountRoute {
          authMid,
          this._accountController.fundAccount,
       );
+
+      this.router.route('/withdraw').patch(
+         validateRequest(FundAccountValidation),
+         authMid,
+         this._accountController.withdraw,
+      );
+
+      this.router.route('/').get(
+         authMid,
+         this._accountController.getAccounts,
+      );
    }
 
 }

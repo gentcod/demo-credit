@@ -1,9 +1,9 @@
-import express from 'express';
+import { Router } from 'express';
 import { AuthController } from '../controllers/user.controller';
 import { validateRequest } from '../middlewares/validateReqMiddleware';
-import { SignUpValidation, LoginValidation } from '../validations/user.validation';
+import { LoginValidation, SignUpValidation } from '../validations/user.validation';
 
-const authRouter = express.Router();
+const authRouter = Router();
 const authController = new AuthController();
 
 authRouter.route('/signup').post(
