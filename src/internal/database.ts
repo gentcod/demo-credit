@@ -128,3 +128,11 @@ export const execTx = async (db: Knex, fn: (trx: Knex.Transaction) => Promise<vo
      throw new Error(`Transaction failed: ${err}`);
    }
 }
+
+export enum Entities {
+   AUTH = 'auths',
+   ACCOUNT = 'accounts',
+   TRANSFER = 'transfers',
+   ENTRY = 'entries',
+   PROFILE = 'profiles'
+}

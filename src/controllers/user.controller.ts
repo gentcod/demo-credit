@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { sendApiResponse, sendInternalErrorResponse} from '../utils/apiResponse';
-import { AuthServies } from '../services/auth.services';
+import { AuthServies } from '../services/user.services';
 
 export class AuthController {
    public async createUser(req: Request, res: Response, next: NextFunction) {

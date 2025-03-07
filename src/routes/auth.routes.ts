@@ -1,18 +1,18 @@
-import express from 'express';
-import { AuthController } from '../controllers/auth.controller';
+import { Router } from 'express';
+import { AuthController } from '../controllers/user.controller';
 import { validateRequest } from '../middlewares/validateReqMiddleware';
-import { AuthValidation } from '../validations/user.validation';
+import { LoginValidation, SignUpValidation } from '../validations/user.validation';
 
-const authRouter = express.Router();
+const authRouter = Router();
 const authController = new AuthController();
 
 authRouter.route('/signup').post(
-   validateRequest(AuthValidation),
+   validateRequest(SignUpValidation),
    authController.createUser,
 );
 
 authRouter.route('/login').post(
-   validateRequest(AuthValidation),
+   validateRequest(LoginValidation),
    authController.loginUser,
 );
 

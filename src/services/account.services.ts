@@ -1,9 +1,7 @@
-import { AccountDto, AccountResponse, FundDto } from "../dtos/account.dto";
 import { db } from "../db";
-import { ApiResponse } from "../utils/apiResponse";
+import { AccountDto, AccountResponse, FundDto } from "../dtos/account.dto";
 import { WalletIDGenerator } from "../utils/account";
-import knex from "knex/types";
-import { bool } from "joi/lib";
+import { ApiResponse } from "../utils/apiResponse";
 
 export class AccountServies {
    public async createAccount(accountDto: AccountDto): Promise<ApiResponse<any>> {
@@ -103,18 +101,5 @@ export class AccountServies {
             account: resp,
          }
       }
-
-      const existingAccount = await db.querier.account.getAccounts(auth[0].id);
-
-      const resp = existingAccount.map(acc => AccountResponse.createMultipleResponse(acc))
-      
-      return {
-         status: 200,
-         message: 'Accounts have been fetched successfully.',
-         data: {
-            account: resp,
-         }
-      }
    }
 }
->>>>>>> Stashed changes
