@@ -28,11 +28,3 @@ export class Querier {
       this.transferTx = new TransferTx(db, this.transfer, this.account, this.entry);
    }
 }
-
-export enum Entities {
-   AUTH = 'auths',
-   ACCOUNT = 'accounts',
-   TRANSFER = 'transfers',
-   ENTRY = 'entries',
-   PROFILE = 'profiles'
-}

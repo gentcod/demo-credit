@@ -1,25 +1,18 @@
 import { Knex } from 'knex';
+import { getTimestampFromUUID } from '../../utils/transaction';
 import { execTx } from '../database';
-import { IAccount } from '../models/Account';
+import { Account } from '../models/Account';
 import { ITransfer } from '../models/Transfer';
 import { AccountQueries } from '../queries/account.queries';
 import { EntryQueries } from '../queries/entries.queries';
 import { TransferQueries } from '../queries/transfer.queries';
 
-type TransferTxParams = {
-   transfer: ITransfer;
-}
-
 type AccountTXParam = {
-   account1Id: string,
-   amount1: number,
-   account2Id: string,
-   amount2: number
-}
-
-type AccountTXResult = {
-   account1: IAccount;
-   account2: IAccount;
+   account1Id: string;
+   amount1: number;
+   account2Id: string;
+   amount2: number;
+   currency: string;
 }
 
 export class TransferTx {
@@ -40,65 +33,86 @@ export class TransferTx {
       this._entries = entries;
    }
 
-   public async transfer(params: TransferTxParams) {
+   public async transfer(transfer: ITransfer, currency: string): Promise<Account> {
       try {
+         let result;
          await execTx(this._db, async (trx) => {
-            await this._transfer.createTransfer(params.transfer, trx);
+            console.log(transfer);
+            
+            await this._transfer.createTransfer(transfer, trx);
+
+            const senderUnixTime = getTimestampFromUUID(transfer.sender_id);
+            const recipientUnixTime = getTimestampFromUUID(transfer.recipient_id);
+
+            if (senderUnixTime < recipientUnixTime ){
+               result = await this._updateAccounts(
+                  {
+                     account1Id: transfer.sender_id,
+                     amount1: -transfer.amount,
+                     account2Id: transfer.recipient_id,
+                     amount2: transfer.amount,
+                     currency,
+                  },
+                  trx
+               )
+            } else {
+               result = await this._updateAccounts(
+                  {
+                     account1Id: transfer.recipient_id,
+                     amount1: transfer.amount,
+                     account2Id: transfer.sender_id,
+                     amount2: -transfer.amount,
+                     currency,
+                  },
+                  trx
+               )
+            }
 
             await this._entries.createEntry(
                {
-                  account_id: params.transfer.sender_id,
-                  amount: -params.transfer.amount,
+                  account_id: transfer.sender_id,
+                  amount: -transfer.amount,
                },
                trx
             )
 
             await this._entries.createEntry(
                {
-                  account_id: params.transfer.recipient_id,
-                  amount: params.transfer.amount,
+                  account_id: transfer.recipient_id,
+                  amount: transfer.amount,
                },
                trx
             )
 
-            // update accounts
-            await this._addMoney(
-               {
-                  account1Id: params.transfer.sender_id,
-                  amount1: -params.transfer.amount,
-                  account2Id: params.transfer.recipient_id,
-                  amount2: params.transfer.amount
-               },
-               trx
-            )
          })
+         return result;
       } catch (err) {
          throw err;
       }
    }
 
-   private async _addMoney(param: AccountTXParam, trx: Knex.Transaction): Promise<AccountTXResult> {
+   private async _updateAccounts(param: AccountTXParam, trx: Knex.Transaction): Promise<Account> {
       try {
-         const senderRes = await this._account.getAccountForUpdate(param.account1Id, trx);
-         await this._account.updateAccount(
-            {
-               balance: senderRes[0].balance - param.amount1,
-            },
-            senderRes[0].id,
+         console.log(param);
+         
+         const account1 = await this._account.getAccountForUpdate(param.account1Id, trx);
+         await this._account.fundAccount(
+            (account1[0].balance + param.amount1),
+            account1[0].id,
+            param.currency,
             trx
          )
-         const account1 = await this._account.getAccount(param.account1Id);
 
-         const recipientRes = await this._account.getAccountForUpdate(param.account1Id, trx);
-         await this._account.updateAccount(
-            {
-               balance: recipientRes[0].balance + param.amount1,
-            },
-            recipientRes[0].id,
+         const account2 = await this._account.getAccountForUpdate(param.account2Id, trx);         
+         await this._account.fundAccount(
+            account2[0].balance + param.amount2,
+            account2[0].id,
+            param.currency,
             trx
          )
-         const account2 = await this._account.getAccountForUpdate(param.account2Id);
-         return { account1: account1[0], account2: account2 }
+         console.log(account1, account2);
+         const res = param.amount1 < param.amount2 ? account1[0] : account2[0];
+         return res;
       } catch (error) {
          throw error;
       }

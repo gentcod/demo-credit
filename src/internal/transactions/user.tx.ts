@@ -20,8 +20,7 @@ export class UserTx {
       try {
          await execTx(this._db, async (trx) => {
             await this._auth.createAuth(auth, trx);
-            const authRes = await this._auth.getAuthId();
-            profile.user_id = authRes[0].id;
+            profile.user_id = auth.id;
             await this._profile.createProfile(profile, trx);
          });
       } catch (err) {

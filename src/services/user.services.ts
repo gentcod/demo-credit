@@ -1,12 +1,14 @@
+import { v4 as uuidv4 } from 'uuid';
 import { db } from "../db";
 import { IAuth } from "../internal/models/Auth";
 import { hasher } from "../utils/bcrypt";
 import { CONFIG } from "../utils/config";
 import { signJwt } from "../utils/jwt";
 import { UserDto } from "../dtos/user.dto";
+import { ApiResponse } from "../utils/apiResponse";
 
 export class AuthServies {
-   public async createUser(userDto: UserDto) {
+   public async createUser(userDto: UserDto): Promise<ApiResponse<any>> {
       const { email, password, ...data } = userDto
       const mail = email.toLowerCase();
       const auth = await db.querier.user.getAuthByEmail(mail);
@@ -20,7 +22,7 @@ export class AuthServies {
 
       const hashedPassword = await hasher.hashPasswordHandler(password);
       await db.querier.userTx.createUser(
-         { email, password: hashedPassword },
+         { id: uuidv4(), email, password: hashedPassword },
          { user_id: null, ...data }
       );
 
@@ -30,7 +32,7 @@ export class AuthServies {
       }
    }
 
-   public async loginUser(authDto: IAuth) {
+   public async loginUser(authDto: IAuth): Promise<ApiResponse<any>> {
       const email = authDto.email.toLowerCase();
       const auth = await db.querier.user.getAuthByEmail(email);
 
@@ -53,6 +55,7 @@ export class AuthServies {
 
       const payload = {
          email: authWithPassword[0].email,
+         user_id: authWithPassword[0].id,
       };
       const token = signJwt(payload, CONFIG.JwtAuthExpiration);
 

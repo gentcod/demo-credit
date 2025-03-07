@@ -1,6 +1,6 @@
 import { Knex } from 'knex';
-import { Entities } from '../store';
-import { IEntry } from '../models/Entry';
+import { Entities } from '../database';
+import { Entry, IEntry } from '../models/Entry';
 
 // const entity = Entities.ENTRY;
 
@@ -12,16 +12,16 @@ export class EntryQueries {
    }
    public async createEntry(entry: IEntry, trx?: Knex.Transaction): Promise<any> {
       const db = trx || this._db;
-      return db.insert(entry).into<IEntry>('entries');
+      return db.insert(entry).into<Entry>('entries');
    }
 
-   public async getEntry(entryId: string): Promise<any> {
-      return this._db.select('*').from<IEntry>('entries').where('id', entryId)
+   public async getEntry(entryId: string): Promise<Entry[]> {
+      return this._db.select('*').from<Entry>('entries').where('id', entryId)
    }
 
    public async getEntries(
       accountId: string, limit?: number, offset?: number
-   ): Promise<any> {
-      return this._db.select('*').from<IEntry>('entries').where('user_id', accountId).limit(limit).offset(offset);
+   ): Promise<Entry[]> {
+      return this._db.select('*').from<Entry>('entries').where('user_id', accountId).limit(limit).offset(offset);
    }
 };

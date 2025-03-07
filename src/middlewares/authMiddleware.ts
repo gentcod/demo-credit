@@ -7,6 +7,7 @@ declare global {
    namespace Express {
       interface Request {
          email?: string;
+         user_id?: string;
       }
    }
 }
@@ -54,6 +55,7 @@ export const authMid = async (req: Request, res: Response, next: NextFunction) =
       }
 
       req.email = payload.email;
+      req.user_id = payload.user_id;
       return next()
    } catch (err) {
       sendInternalErrorResponse(err, res)
