@@ -36,9 +36,7 @@ export class TransferTx {
    public async transfer(transfer: ITransfer, currency: string): Promise<Account> {
       try {
          let result;
-         await execTx(this._db, async (trx) => {
-            console.log(transfer);
-            
+         await execTx(this._db, async (trx) => {            
             await this._transfer.createTransfer(transfer, trx);
 
             const senderUnixTime = getTimestampFromUUID(transfer.sender_id);
@@ -72,6 +70,7 @@ export class TransferTx {
                {
                   account_id: transfer.sender_id,
                   amount: -transfer.amount,
+                  description: `debit-${transfer.recipient_id}`
                },
                trx
             )
@@ -80,6 +79,7 @@ export class TransferTx {
                {
                   account_id: transfer.recipient_id,
                   amount: transfer.amount,
+                  description: `credit-${transfer.sender_id}`
                },
                trx
             )
