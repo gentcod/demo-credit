@@ -13,7 +13,7 @@ export const randomStr = (len: number): string => {
    let res = ''
 
    for (let i = 0; i < len; i++) {
-      const num = randomInt(alphabet.length + 1)
+      const num = randomInt(alphabet.length)
       const ch = alphabet[num]      
       res += ch
    }
@@ -24,7 +24,7 @@ export const randomEmail = (len: number): string => {
    let res = ''
 
    const str = randomStr(len)
-   const index = randomInt(mailer.length + 1)
+   const index = randomInt(mailer.length)
    const mail = mailer[index]
    res += str+mail
 

@@ -19,7 +19,7 @@ export class TransferQueries {
       return this._db.select('*').from<Transfer>('transfers').where('id', transferId)
    }
 
-   public async getTransfers(limit?: number, offset?: number): Promise<Transfer[]> {
+   public async getTransfers(limit: number = 10, offset?: number): Promise<Transfer[]> {
       return this._db.select('*').from<Transfer>('transfers').limit(limit).offset(offset);
    }
 };
