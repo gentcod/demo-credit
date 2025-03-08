@@ -16,7 +16,7 @@ export class AccountQueries {
    }
    public async createAccount(data: AccountCreate, trx?: Knex.Transaction): Promise<any> {
       const db = trx || this._db;
-      return db.insert(data).into<Account>('accounts').returning('*');
+      return db.insert(data).into<Account>('accounts');
    }
 
    public async getAccount(userId: string, currency: string): Promise<Account[]> {
