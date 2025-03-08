@@ -17,7 +17,6 @@ const database = new DatabaseConnection({
 // db connection events
 database.on('connected', async () => {
   try {
-    await database.migrate();    
     logger.info('Database connection has been established successfully');
   } catch (e) {
     logger.debug('Failed to initialize database  ' + e);

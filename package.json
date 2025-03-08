@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
+    "test:watch": "jest --detectOpenHandles -w",
     "build": "tsc",
     "serve": "npm run build && node dist/server.js --env production",
     "serve-dev": "npm run build && node dist/server.js",
