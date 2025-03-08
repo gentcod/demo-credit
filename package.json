@@ -10,7 +10,6 @@
     "serve": "npm run build && node dist/server.js --env production",
     "serve-dev": "npm run build && node dist/server.js",
     "start": "npm run serve",
-    "start-prod": "node dist/server.js",
     "start-dev": "npm run serve-dev",
     "dev": "nodemon src/server.ts",
     "update-dep-dev": "npm run check-updates && npm run dev-install",
