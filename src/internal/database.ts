@@ -53,7 +53,7 @@ export class DatabaseConnection extends EventEmitter {
          });
          this._db = knex;
          this.isConnected = true;
-         await this._db.initialize();
+         await this._db.raw('SELECT DATABASE()');
          this.emit('connected');
       } catch (error) {
          this.emit('error', error);

@@ -91,14 +91,12 @@ export class TransferTx {
       }
    }
 
-   private async _updateAccounts(param: AccountTXParam, trx: Knex.Transaction): Promise<Account> {
-      try {
-         console.log(param);
-         
+   private async _updateAccounts(param: AccountTXParam, trx: Knex.Transaction): Promise<void> {
+      try {         
          const account1 = await this._account.getAccountForUpdate(param.account1Id, trx);
          await this._account.fundAccount(
             (account1[0].balance + param.amount1),
-            account1[0].id,
+            account1[0].user_id,
             param.currency,
             trx
          )
@@ -106,13 +104,10 @@ export class TransferTx {
          const account2 = await this._account.getAccountForUpdate(param.account2Id, trx);         
          await this._account.fundAccount(
             account2[0].balance + param.amount2,
-            account2[0].id,
+            account2[0].user_id,
             param.currency,
             trx
          )
-         console.log(account1, account2);
-         const res = param.amount1 < param.amount2 ? account1[0] : account2[0];
-         return res;
       } catch (error) {
          throw error;
       }
