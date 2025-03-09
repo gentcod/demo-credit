@@ -27,7 +27,7 @@ export class AccountQueries {
       return this._db.select('*').from<Account>('accounts').where('wallet_id', wallet_id)
    }
 
-   public async getAccounts(userId: string, limit: number = 0, offset?: number): Promise<Account[]> {
+   public async getAccounts(userId: string, limit: number = 10, offset?: number): Promise<Account[]> {
       return this._db.select('*').from<Account>('accounts').where('user_id', userId).limit(limit).offset(offset);
    }
 

@@ -1,5 +1,5 @@
 /**
- * Generates a unique 10-digit account number
+ * WalletIDGenerator helps to generate a unique 10-digit account number
  * Format: 5XXXXXXXXX (starts with 5, followed by 9 random digits)
  */
 export class WalletIDGenerator {
@@ -14,7 +14,7 @@ export class WalletIDGenerator {
       return accountNumber;
    }
 
-   public isValid(accountNumber: string): boolean {
-      return /^5\d{9}$/.test(accountNumber);
+   public isValid(wallet_id: string): boolean {
+      return /^5\d{9}$/.test(wallet_id);
    }
 }

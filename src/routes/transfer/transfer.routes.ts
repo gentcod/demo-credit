@@ -19,7 +19,7 @@ export class TransferRoute {
    }
 
    routes() {
-      this.router.route('/send').post(
+      this.router.route('/new').post(
          validateRequest(SendFundValidation),
          authMid,
          this._transferController.sendFund,

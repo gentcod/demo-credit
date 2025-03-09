@@ -61,9 +61,15 @@ export class AuthServies {
          }
       }
 
+      const profile = await db.querier.profile.getProfile(auth[0].id)
+
       const payload = {
          email: authWithPassword[0].email,
          user_id: authWithPassword[0].id,
+         first_name: profile[0].first_name,
+         last_name: profile[0].last_name,
+         created_at: profile[0].created_at,
+         updated_at: profile[0].updated_at,
       };
       const token = signJwt(payload, CONFIG.JwtAuthExpiration);
 

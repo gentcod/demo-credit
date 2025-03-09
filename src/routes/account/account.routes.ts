@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { validateRequest } from '../../middlewares/validateReqMiddleware';
 import { AccountController } from '../../controllers/account.controller';
-import { CreateAccountValidation, FundAccountValidation, GetAccountValidation } from '../../validations/account.validation';
+import { CreateAccountValidation, FundAccountValidation, GetAccountValidation, GetTransactionValidation } from '../../validations/account.validation';
 import { authMid } from '../../middlewares/authMiddleware';
 
 export class AccountRoute {
@@ -42,10 +42,21 @@ export class AccountRoute {
          this._accountController.getAccounts,
       );
 
+      this.router.route('/transactions').get(
+         validateRequest(GetTransactionValidation, 'query'),
+         authMid,
+         this._accountController.getTransactions,
+      );
+
       this.router.route('/:currency').get(
          validateRequest(GetAccountValidation, 'params'),
          authMid,
          this._accountController.getAccount,
+      );
+      
+      this.router.route('/transactions/:transactionId').get(
+         authMid,
+         this._accountController.getSingleTransaction,
       );
    }
 

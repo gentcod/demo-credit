@@ -6,9 +6,9 @@ import { IProfile } from '../models/Profile';
 import { IAuth } from '../models/Auth';
 
 export class UserTx {
-   private _db: Knex
-   private _auth: AuthQueries
-   private _profile: ProfileQueries
+   private _db: Knex;
+   private _auth: AuthQueries;
+   private _profile: ProfileQueries;
 
    constructor(db: Knex, auth: AuthQueries, profile: ProfileQueries) {
       this._db = db;
