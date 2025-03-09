@@ -22,6 +22,6 @@ export class EntryQueries {
    public async getEntries(
       accountId: string, limit: number = 10, offset?: number
    ): Promise<Entry[]> {
-      return this._db.select('*').from<Entry>('entries').where('account_id', accountId).limit(limit).offset(offset);
+      return this._db.select('*').from<Entry>('entries').where('account_id', accountId).limit(limit!).offset(offset!);
    }
 };

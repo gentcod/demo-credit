@@ -1,3 +1,4 @@
+import { Pagination } from "../dtos/pagination";
 import { db } from "../db";
 import { AccountDto, AccountResponse, FundDto, TransactionResponse } from "../dtos/account.dto";
 import { WalletIDGenerator } from "../utils/account";
@@ -132,7 +133,7 @@ export class AccountServies {
       }
    }
 
-   public async getTransactions(user_id: string, currency: string): Promise<ApiResponse<any>> {
+   public async getTransactions(user_id: string, currency: string, pagination: Pagination): Promise<ApiResponse<any>> {
       const auth = await db.querier.user.getAuthById(user_id);
       if (!auth[0]) {
          return {
@@ -148,8 +149,8 @@ export class AccountServies {
             message: `${currency} based account does not exist. Try creating one.`,
          }
       }
-
-      const entries = await db.querier.entry.getEntries(account[0].id)
+      
+      const entries = await db.querier.entry.getEntries(account[0].id, pagination.limit, pagination.offset)
 
       const resp = entries.map(entry => TransactionResponse.createMultipleResponse(entry))
 
