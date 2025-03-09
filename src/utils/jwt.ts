@@ -22,7 +22,6 @@ export const signJwt = (payload: Object, duration: string, options: SignOptions 
 
 export const verifyJwt = (token: string) => {
   try {
-    // @ts-ignore
     const publicKey: Secret | GetPublicKeyOrSecret | string = CONFIG.JWTPrivateKey;
     return jwt.verify(token, publicKey);
   } catch (error) {
