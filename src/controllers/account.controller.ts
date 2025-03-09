@@ -82,5 +82,39 @@ export class AccountController {
          sendInternalErrorResponse(res, err);
          next(err);
       }
-   };     
+   };
+   
+   public async getTransactions(req: Request, res: Response, next: NextFunction) {
+      try {
+         const currency = req.query.currency as string;         
+         const result = await new AccountServies().getTransactions(req.user_id, currency)
+         
+         return sendApiResponse(res, {
+            status: result.status,
+            message: result.message,
+            data: result.data,
+         });
+      }
+      catch (err) {
+         sendInternalErrorResponse(res, err);
+         next(err);
+      }
+   };
+
+   public async getSingleTransaction(req: Request, res: Response, next: NextFunction) {
+      try {
+         const transactionId = req.params.transactionId as string;         
+         const result = await new AccountServies().getSingleTransaction(req.user_id, transactionId)
+         
+         return sendApiResponse(res, {
+            status: result.status,
+            message: result.message,
+            data: result.data,
+         });
+      }
+      catch (err) {
+         sendInternalErrorResponse(res, err);
+         next(err);
+      }
+   };
 }

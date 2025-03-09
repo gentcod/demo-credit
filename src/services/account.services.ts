@@ -1,5 +1,5 @@
 import { db } from "../db";
-import { AccountDto, AccountResponse, FundDto } from "../dtos/account.dto";
+import { AccountDto, AccountResponse, FundDto, TransactionResponse } from "../dtos/account.dto";
 import { WalletIDGenerator } from "../utils/account";
 import { ApiResponse } from "../utils/apiResponse";
 
@@ -33,7 +33,7 @@ export class AccountServies {
       const account = await db.querier.account.getAccount(auth[0].id, accountDto.currency);
 
       const resp = AccountResponse.createResponse(account[0])
-      
+
       return {
          status: 200,
          message: 'Account has been created successfully.',
@@ -60,21 +60,22 @@ export class AccountServies {
          }
       }
 
-      const newBal = withdrawal ? existingAccount[0].balance - fund.amount : existingAccount[0].balance + fund.amount
+      const newBal = withdrawal ? -fund.amount : fund.amount
 
-      await db.querier.account.fundAccount(
+      await db.querier.accountTx.updateBalance(
+         existingAccount[0].id,
+         withdrawal ? 'withdrawal' : 'topup',
          newBal,
-         auth[0].id,
          fund.currency
       )
 
       const account = await db.querier.account.getAccount(auth[0].id, fund.currency);
 
       const resp = AccountResponse.createResponse(account[0])
-      
+
       return {
          status: 200,
-         message: 'Acount has been funded successfully.',
+         message: `${withdrawal ? 'Withdrawal was processed' : 'Acount has been funded'} successfully.`,
          data: {
             account: resp,
          }
@@ -90,10 +91,10 @@ export class AccountServies {
          }
       }
 
-      const existingAccount = await db.querier.account.getAccounts(auth[0].id);
+      const accounts = await db.querier.account.getAccounts(auth[0].id);
 
-      const resp = existingAccount.map(acc => AccountResponse.createMultipleResponse(acc))
-      
+      const resp = accounts.map(acc => AccountResponse.createMultipleResponse(acc))
+
       return {
          status: 200,
          message: 'Accounts have been fetched successfully.',
@@ -121,12 +122,64 @@ export class AccountServies {
       }
 
       const resp = AccountResponse.createResponse(account[0])
-      
+
       return {
          status: 200,
          message: 'Account has been fetched successfully.',
          data: {
             account: resp,
+         }
+      }
+   }
+
+   public async getTransactions(user_id: string, currency: string): Promise<ApiResponse<any>> {
+      const auth = await db.querier.user.getAuthById(user_id);
+      if (!auth[0]) {
+         return {
+            status: 403,
+            message: 'Transactions cannot be fetched by unauthorized user.'
+         }
+      }
+
+      const account = await db.querier.account.getAccount(auth[0].id, currency);
+      if (!account[0]) {
+         return {
+            status: 404,
+            message: `${currency} based account does not exist. Try creating one.`,
+         }
+      }
+
+      const entries = await db.querier.entry.getEntries(account[0].id)
+
+      const resp = entries.map(entry => TransactionResponse.createMultipleResponse(entry))
+
+      return {
+         status: 200,
+         message: 'Transactions have been fetched successfully.',
+         data: {
+            transactions: resp,
+         }
+      }
+   }
+
+   public async getSingleTransaction(user_id: string, transactionId: string): Promise<ApiResponse<any>> {
+      const auth = await db.querier.user.getAuthById(user_id);
+      if (!auth[0]) {
+         return {
+            status: 403,
+            message: 'Transactions cannot be fetched by unauthorized user.'
+         }
+      }
+
+      const entry = await db.querier.entry.getEntry(transactionId);      
+
+      const resp = TransactionResponse.createResponse(entry[0]);
+
+      return {
+         status: 200,
+         message: 'Transactions have been fetched successfully.',
+         data: {
+            transaction: resp,
          }
       }
    }

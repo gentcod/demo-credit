@@ -13,3 +13,7 @@ export const FundAccountValidation = Joi.object({
 export const GetAccountValidation = Joi.object({
    currency: Joi.string().required().trim().valid(...CONFIG.Currencies),
 });
+
+export const GetTransactionValidation = Joi.object({
+   currency: Joi.string().required().trim().valid(...CONFIG.Currencies),
+});
