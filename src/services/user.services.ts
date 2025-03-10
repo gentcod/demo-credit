@@ -10,7 +10,7 @@ import { LendsqrAdjutor } from './third-party/adjutor.services';
 
 export class AuthServies {
    public async createUser(userDto: UserDto): Promise<ApiResponse<any>> {
-      const { email, password, ...data } = userDto
+      const { email, password, ...data } = userDto;
       const mail = email.toLowerCase();
       const auth = await db.querier.user.getAuthByEmail(mail);
       if (auth[0]) {
@@ -20,11 +20,18 @@ export class AuthServies {
          }
       }
 
-      const adjutorResp = await new LendsqrAdjutor().checkKarama(email)
+      const adjutorResp = await new LendsqrAdjutor().checkKarama(email); 
       if (adjutorResp.isError) {
          return {
             status: adjutorResp.data.status,
-            message: `Signup failed as you have been blacklisted. ${adjutorResp.data.message}`,
+            message: `Signup failed. Error validating karma blacklist status.`,
+         }
+      }
+
+      if (adjutorResp.isError || adjutorResp.data.result != null) {
+         return {
+            status: adjutorResp.data.status,
+            message: `Signup failed as you have been blacklisted on Karma.`,
          }
       }
 

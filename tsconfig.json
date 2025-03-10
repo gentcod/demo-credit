@@ -19,5 +19,5 @@
         "forceConsistentCasingInFileNames": true,
         // "strictNullChecks": true
     },
-    "include": ["src/**/*.ts"]
+    "include": ["src/**/*.ts", "src/internal/migrations/20250305140500_create_auth.js", "src/internal/migrations/20250305200100_create_profile.js", "src/internal/migrations/20250306014600_create_account.js", "src/internal/migrations/20250306015900_create_entries.js", "src/internal/migrations/20250306021900_create_transfer.js", "src/internal/migrations/20250307101700_update_account.js", "src/internal/migrations/20250307101700_update_transfer.js", "src/internal/migrations/20250307193400_update_entries.js"]
 }
