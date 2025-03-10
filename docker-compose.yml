@@ -1,28 +1,48 @@
-version: '3.4'
-
+version: "3.9"
 services:
   api:
-    restart: unless-stopped 
+    restart: unless-stopped
     build:
       context: .
       dockerfile: ./Dockerfile
     networks:
-      - demo-credit-network
+      - dc-network
     environment:
-      NODE_ENV: development
+      NODE_ENV: production
     env_file:
       - ./.env
+    depends_on:
+      mysql:
+        condition: service_healthy
   proxy:
-    restart: unless-stopped 
-    build: 
+    restart: unless-stopped
+    build:
       context: ./proxy
       dockerfile: Dockerfile
     ports:
       - 8080:80
-    depends_on: 
+    depends_on:
       - api
     networks:
-    - demo-credit-network
-networks: 
-  demo-credit-network:
+      - dc-network
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_NAME}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_NAME}
+      MYSQL_PASSWORD: ${DB_NAME}
+    ports:
+      - 3306:3306
+    env_file:
+      - ./.env
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - dc-network
+networks:
+  dc-network:
     driver: bridge
