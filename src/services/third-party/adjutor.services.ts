@@ -35,7 +35,6 @@ export class LendsqrAdjutor {
                },
             }
          );
-         console.log('api-response', response);
          return this._sendResponse(response);
       } catch (error) {
          return this._sendResponse(error, true);

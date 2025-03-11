@@ -20,6 +20,9 @@ A backend service that provides wallet functionality for a mobile lending applic
 ## Database Schema
 ![Database Schema](db-schema.png)
 
+## API URL
+[Demo Credit](https://demo-credit-v2tz.onrender.com)
+
 ## API Documenntation
 [Postman Docs](https://documenter.getpostman.com/view/23824252/2sAYdoEnUT)
 
