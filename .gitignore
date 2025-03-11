@@ -3,3 +3,5 @@ dist
 ref*
 *.env
 .idea
+docker-compose-*.yml
+data/

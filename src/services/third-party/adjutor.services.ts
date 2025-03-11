@@ -11,7 +11,7 @@ export class LendsqrAdjutor {
          {
             isError: false,
             data: {
-               status: resp?.response?.status,
+               status: resp?.status,
                message: '',
                data: resp?.data?.data
             },
@@ -35,7 +35,6 @@ export class LendsqrAdjutor {
                },
             }
          );
-         // console.log('api-response', response.data);
          return this._sendResponse(response);
       } catch (error) {
          return this._sendResponse(error, true);

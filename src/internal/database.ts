@@ -35,28 +35,43 @@ export class DatabaseConnection extends EventEmitter {
     * @param dbConfig
     * @returns Promise<void>
     */
-   private async connect(dbConfig: DBConfig): Promise<void> {
-      try {
-         const knex = require('knex')({
-            client: dbConfig.client,
-            connection: {
-               host: dbConfig.host,
-               port: dbConfig.port,
-               user: dbConfig.user,
-               password: dbConfig.password,
-               database: dbConfig.dbstring,
-            },
-            migrations: {
-               directory: "./src/internal/migrations",
-            },
-            // debug: process.env.NODE_ENV === 'development' ? true : false, // Uncomment to enable debug
-         });
-         this._db = knex;
-         this.isConnected = true;
-         await this._db.raw('SELECT DATABASE()');
-         this.emit('connected');
-      } catch (error) {
-         this.emit('error', error);
+   private async connect(dbConfig: DBConfig, retries = 5, delay = 2000): Promise<void> {
+      let attempt = 0;
+
+      while (attempt < retries) {
+         try {
+            const knex = require('knex')({
+               client: dbConfig.client,
+               connection: {
+                  host: dbConfig.host,
+                  port: dbConfig.port,
+                  user: dbConfig.user,
+                  password: dbConfig.password,
+                  database: dbConfig.dbstring,
+               },
+               migrations: {
+                  directory: "./src/internal/migrations",
+               },
+               // debug: process.env.NODE_ENV === 'development' ? true : false, // Uncomment to enable debug
+            });
+            this._db = knex;
+            this.isConnected = true;
+            await this._db.raw('SELECT DATABASE()');
+            this.emit('connected');
+            return;
+         } catch (error) {
+            this.emit('error', error);
+            if (attempt === retries - 1) {
+               this.emit('error', 'Max retries reached. Exiting...');
+               throw error;
+            }
+
+            attempt++;
+            this.emit('error', `Retrying in ${delay / 1000} seconds...`);
+            await new Promise(res => setTimeout(res, delay));
+
+            delay *= 2;
+         }
       }
    }
 
@@ -121,11 +136,11 @@ export class DatabaseConnection extends EventEmitter {
 export const execTx = async (db: Knex, fn: (trx: Knex.Transaction) => Promise<void>): Promise<void> => {
    const trx = await db.transaction();
    try {
-     await fn(trx);
-     await trx.commit();
+      await fn(trx);
+      await trx.commit();
    } catch (err) {
-     await trx.rollback();
-     throw new Error(`Transaction failed: ${err}`);
+      await trx.rollback();
+      throw new Error(`Transaction failed: ${err}`);
    }
 }
 
